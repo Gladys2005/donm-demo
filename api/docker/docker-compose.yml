@@ -1,0 +1,156 @@
+version: '3.8'
+
+services:
+  # API DonM
+  donm-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: donm-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_HOST=donm-db
+      - DB_PORT=5432
+      - DB_NAME=donm_db
+      - DB_USER=donm_user
+      - DB_PASSWORD=donm_secure_password_2024
+      - JWT_SECRET=donm_jwt_production_secret_key_change_me_in_production
+      - CORS_ORIGIN=*
+    depends_on:
+      donm-db:
+        condition: service_healthy
+    networks:
+      - donm-network
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Base de données PostgreSQL
+  donm-db:
+    image: postgres:15-alpine
+    container_name: donm-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=donm_db
+      - POSTGRES_USER=donm_user
+      - POSTGRES_PASSWORD=donm_secure_password_2024
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    ports:
+      - "5432:5432"
+    volumes:
+      - donm-db-data:/var/lib/postgresql/data
+      - ../donm_database_simple.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - donm-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U donm_user -d donm_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Nginx (Reverse Proxy)
+  nginx:
+    image: nginx:alpine
+    container_name: donm-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - donm-api
+    networks:
+      - donm-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis (pour le cache et les sessions)
+  redis:
+    image: redis:7-alpine
+    container_name: donm-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - donm-redis-data:/data
+      - ./redis/redis.conf:/etc/redis/redis.conf:ro
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      - donm-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Monitoring (Prometheus)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: donm-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - donm-network
+
+  # Monitoring (Grafana)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: donm-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    networks:
+      - donm-network
+
+volumes:
+  donm-db-data:
+    driver: local
+  donm-redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  donm-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "name": "donm",
+  "builds": [
+    {
+      "src": "build/web/**/*",
+      "use": "@vercel/static",
+      "config": {
+        "distDir": "build/web"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

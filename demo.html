@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DonM - Démonstration Application Livraison</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            font-size: 48px;
+            font-weight: 700;
+            color: #FF6B35;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .demo-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .demo-btn {
+            background: linear-gradient(45deg, #FF6B35, #F7931E);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            color: #FF6B35;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .status {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .tech-stack {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .tech-badge {
+            background: rgba(255, 107, 53, 0.1);
+            color: #FF6B35;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .logo {
+                font-size: 36px;
+            }
+            
+            .demo-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .demo-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🍛 DonM</div>
+            <div class="tagline">Application de Livraison de Plats et Courses à Abidjan</div>
+            
+            <div class="status">
+                <div class="status-badge">✅ Production Ready</div>
+                <div><strong>Statut:</strong> Application complète et fonctionnelle</div>
+            </div>
+            
+            <div class="demo-buttons">
+                <a href="#" class="demo-btn" onclick="showMobileDemo()">
+                    <span class="material-icons">smartphone</span>
+                    Vue Mobile
+                </a>
+                <a href="#" class="demo-btn" onclick="showAdminDemo()">
+                    <span class="material-icons">dashboard</span>
+                    Dashboard Admin
+                </a>
+                <a href="#" class="demo-btn" onclick="showDocumentation()">
+                    <span class="material-icons">description</span>
+                    Documentation
+                </a>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">Application Multi-Rôles</div>
+                <div class="feature-description">
+                    Clients, Vendeurs, Livreurs et Administrateurs avec des interfaces adaptées à chaque rôle
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <div class="feature-title">Mobile Money</div>
+                <div class="feature-description">
+                    Intégration Orange Money, MTN Mobile Money et MoMo pour les paiements sécurisés
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📍</div>
+                <div class="feature-title">Suivi GPS</div>
+                <div class="feature-description">
+                    Suivi en temps réel des livraisons avec géolocalisation précise à Abidjan
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Analytics Avancés</div>
+                <div class="feature-description">
+                    Tableau de bord complet avec métriques en temps réel et rapports détaillés
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <div class="feature-title">Notifications</div>
+                <div class="feature-description">
+                    Notifications push et SMS pour le suivi des commandes en temps réel
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <div class="feature-title">Sécurité</div>
+                <div class="feature-description">
+                    Authentification JWT, validation KYC et protection des données personnelles
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🚀 Lancement de la Démonstration</h2>
+            <p>Pour une démonstration complète, veuillez contacter l'équipe de développement</p>
+            
+            <div class="qr-placeholder">
+                <span>QR Code Demo</span>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h3>📞 Contact Démonstration</h3>
+                <p><strong>Email:</strong> demo@donm.ci</p>
+                <p><strong>Téléphone:</strong> +225 07 00 00 00 00</p>
+                <p><strong>Disponibilité:</strong> Lundi - Vendredi, 9h - 18h</p>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🛠️ Stack Technologique</h2>
+            <div class="tech-stack">
+                <div class="tech-badge">Flutter</div>
+                <div class="tech-badge">Node.js</div>
+                <div class="tech-badge">PostgreSQL</div>
+                <div class="tech-badge">Redis</div>
+                <div class="tech-badge">Docker</div>
+                <div class="tech-badge">Nginx</div>
+                <div class="tech-badge">Prometheus</div>
+                <div class="tech-badge">Grafana</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showMobileDemo() {
+            alert('Démo Mobile: Interface client avec commande, suivi et paiement Mobile Money');
+        }
+        
+        function showAdminDemo() {
+            alert('Démo Admin: Dashboard avec analytics, gestion utilisateurs et monitoring');
+        }
+        
+        function showDocumentation() {
+            alert('Documentation complète disponible dans le projet GitHub');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+groups:
+  - name: donm_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: rate(donm_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: donm-api
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors per second for more than 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: donm_memory_usage_bytes / donm_memory_usage_bytes > 0.9
+        for: 5m
+        labels:
+          severity: critical
+          service: donm-api
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90% for more than 5 minutes"
+
+      - alert: NoActiveUsers
+        expr: sum(donm_active_users_total) == 0
+        for: 10m
+        labels:
+          severity: warning
+          service: donm-api
+        annotations:
+          summary: "No active users"
+          description: "No users have been active for 10 minutes"
+
+      - alert: PaymentFailureRate
+        expr: rate(donm_payment_attempts_total{success="false"}[5m]) / rate(donm_payment_attempts_total[5m]) > 0.3
+        for: 5m
+        labels:
+          severity: critical
+          service: donm-api
+        annotations:
+          summary: "High payment failure rate"
+          description: "Payment failure rate is {{ $value | humanizePercentage }} for more than 5 minutes"
+
+      - alert: SlowHTTPRequests
+        expr: histogram_quantile(0.95, rate(donm_http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: donm-api
+        annotations:
+          summary: "Slow HTTP requests"
+          description: "95th percentile response time is {{ $value }}s for more than 5 minutes"
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: donm_db_connection_pool_active > 15
+        for: 2m
+        labels:
+          severity: critical
+          service: donm-api
+        annotations:
+          summary: "Database connection pool exhausted"
+          description: "Database connection pool has {{ $value }} active connections"
+
+      - alert: CacheHitRateLow
+        expr: rate(donm_cache_hits_total[5m]) / (rate(donm_cache_hits_total[5m]) + rate(donm_cache_misses_total[5m])) < 0.7
+        for: 10m
+        labels:
+          severity: warning
+          service: donm-api
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} for more than 10 minutes"
+
+      - alert: MobileMoneyTransactionFailure
+        expr: rate(donm_mobile_money_transactions_total{status="failed"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: donm-api
+        annotations:
+          summary: "High Mobile Money transaction failure rate"
+          description: "Mobile Money transaction failure rate is {{ $value }} transactions per second"
+
+      - alert: NoOrdersCreated
+        expr: increase(donm_orders_total{status="pending"}[1h]) == 0
+        for: 30m
+        labels:
+          severity: warning
+          service: donm-api
+        annotations:
+          summary: "No new orders created"
+          description: "No new orders have been created in the last hour"
+
+      - alert: SocketConnectionIssues
+        expr: donm_socket_connections_total < 5
+        for: 15m
+        labels:
+          severity: warning
+          service: donm-api
+        annotations:
+          summary: "Low socket connections"
+          description: "Only {{ $value }} socket connections active for more than 15 minutes"
+
+      - alert: APIResponseTimeDegraded
+        expr: histogram_quantile(0.50, rate(donm_http_request_duration_seconds_bucket[5m])) > 1
+        for: 10m
+        labels:
+          severity: warning
+          service: donm-api
+        annotations:
+          summary: "API response time degraded"
+          description: "50th percentile response time is {{ $value }}s for more than 10 minutes"

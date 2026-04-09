@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DonM - Votre application de livraison de plats et courses à Abidjan">
+    <meta name="keywords" content="livraison, plats, Abidjan, DonM, restaurant, courses">
+    <meta name="author" content="DonM Côte d'Ivoire">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://donm.ci/">
+    <meta property="og:title" content="DonM - Livraison de plats et courses à Abidjan">
+    <meta property="og:description" content="Commandez vos plats préférés et faites vos courses facilement avec DonM">
+    <meta property="og:image" content="https://donm.ci/assets/images/donm-og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://donm.ci/">
+    <meta property="twitter:title" content="DonM - Livraison de plats et courses à Abidjan">
+    <meta property="twitter:description" content="Commandez vos plats préférés et faites vos courses facilement avec DonM">
+    <meta property="twitter:image" content="https://donm.ci/assets/images/donm-twitter-image.jpg">
+
+    <!-- Favicon et icons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Preconnect pour optimisation -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://api.donm.ci" crossorigin>
+    <link rel="preconnect" href="https://cdn.donm.ci" crossorigin>
+
+    <!-- Google Fonts (Poppins) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- CSS principal -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    
+    <!-- CSS critique pour le rendu initial -->
+    <style>
+        /* Critical CSS pour éviter le flash */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading-container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #FF6B35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        .loading-text {
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        
+        .donm-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Skeleton screens */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .skeleton-text {
+            height: 20px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .skeleton-button {
+            height: 50px;
+            border-radius: 25px;
+            width: 200px;
+            margin: 0 auto;
+        }
+    </style>
+
+    <title>DonM - Livraison de plats et courses à Abidjan</title>
+</head>
+<body>
+    <!-- Application Flutter -->
+    <div id="loading-screen" class="loading-container">
+        <img src="assets/images/donm-logo.png" alt="DonM" class="donm-logo">
+        <div class="loading-text">Chargement de DonM...</div>
+        <div class="loading-spinner"></div>
+        <div id="skeleton-loader" style="display: none;">
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text" style="width: 80%;"></div>
+            <div class="skeleton skeleton-text" style="width: 60%;"></div>
+            <div class="skeleton skeleton-button"></div>
+        </div>
+    </div>
+
+    <!-- Conteneur principal pour Flutter -->
+    <div id="app-container" style="display: none;">
+        <!-- Le contenu Flutter sera injecté ici -->
+    </div>
+
+    <!-- Scripts de chargement -->
+    <script>
+        // Configuration globale
+        window.DonMConfig = {
+            apiUrl: 'https://api.donm.ci',
+            wsUrl: 'wss://api.donm.ci',
+            version: '1.0.0',
+            environment: 'production',
+            enableAnalytics: true,
+            enableCache: true,
+            enablePushNotifications: true
+        };
+
+        // Service Worker pour PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Gestion du chargement
+        window.addEventListener('DOMContentLoaded', function() {
+            // Afficher le skeleton après 2 secondes si Flutter n'est pas chargé
+            setTimeout(function() {
+                const loadingScreen = document.getElementById('loading-screen');
+                const skeletonLoader = document.getElementById('skeleton-loader');
+                
+                if (loadingScreen && loadingScreen.style.display !== 'none') {
+                    document.querySelector('.loading-spinner').style.display = 'none';
+                    document.querySelector('.loading-text').textContent = 'Préparation de votre expérience...';
+                    skeletonLoader.style.display = 'block';
+                }
+            }, 2000);
+        });
+
+        // Gestion des erreurs
+        window.addEventListener('error', function(e) {
+            console.error('Application error:', e.error);
+            // Envoyer l'erreur aux analytics si disponible
+            if (window.gtag) {
+                window.gtag('event', 'exception', {
+                    'description': e.error.message,
+                    'fatal': false
+                });
+            }
+        });
+
+        // Performance monitoring
+        window.addEventListener('load', function() {
+            if ('performance' in window) {
+                const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+                console.log('Page load time:', loadTime + 'ms');
+                
+                // Envoyer les métriques de performance
+                if (window.gtag) {
+                    window.gtag('event', 'timing_complete', {
+                        'name': 'load',
+                        'value': loadTime
+                    });
+                }
+            }
+        });
+
+        // Gestion du mode hors ligne
+        window.addEventListener('online', function() {
+            console.log('Application en ligne');
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+        });
+
+        window.addEventListener('offline', function() {
+            console.log('Application hors ligne');
+            // Afficher un message hors ligne
+            const offlineMessage = document.createElement('div');
+            offlineMessage.id = 'offline-message';
+            offlineMessage.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    background: #FF6B35;
+                    color: white;
+                    text-align: center;
+                    padding: 10px;
+                    z-index: 9999;
+                    font-family: 'Poppins', sans-serif;
+                    font-weight: 500;
+                ">
+                    📶 Vous êtes hors ligne - Certaines fonctionnalités peuvent être limitées
+                </div>
+            `;
+            document.body.appendChild(offlineMessage);
+        });
+
+        // Vérifier le statut de connexion
+        function updateConnectionStatus() {
+            const offlineMessage = document.getElementById('offline-message');
+            if (offlineMessage && navigator.onLine) {
+                offlineMessage.remove();
+            }
+        }
+
+        setInterval(updateConnectionStatus, 5000);
+
+        // Analytics tracking
+        function trackPageView() {
+            if (window.gtag) {
+                window.gtag('config', 'GA_MEASUREMENT_ID', {
+                    page_title: document.title,
+                    page_location: window.location.href
+                });
+            }
+        }
+
+        function trackEvent(eventName, parameters) {
+            if (window.gtag) {
+                window.gtag('event', eventName, parameters);
+            }
+        }
+
+        // Initialiser le tracking
+        trackPageView();
+    </script>
+
+    <!-- Flutter JavaScript -->
+    <script src="main.dart.js" defer></script>
+    
+    <!-- Scripts additionnels -->
+    <script>
+        // Fonctions utilitaires globales
+        window.DonMUtils = {
+            // Formater le prix en FCFA
+            formatPrice: function(price) {
+                return new Intl.NumberFormat('fr-FR', {
+                    style: 'currency',
+                    currency: 'XOF',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(price);
+            },
+
+            // Formater la date
+            formatDate: function(date) {
+                return new Intl.DateTimeFormat('fr-FR', {
+                    dateStyle: 'medium',
+                    timeStyle: 'short'
+                }).format(new Date(date));
+            },
+
+            // Valider un numéro de téléphone ivoirien
+            validatePhoneNumber: function(phone) {
+                const regex = /^(\+225|00225)?(0?[1-9]\d{8})$/;
+                return regex.test(phone);
+            },
+
+            // Afficher une notification
+            showNotification: function(title, body, icon = null) {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(title, {
+                        body: body,
+                        icon: icon || '/assets/images/donm-logo.png',
+                        badge: '/assets/images/donm-badge.png',
+                        tag: 'donm-notification'
+                    });
+                }
+            },
+
+            // Demander la permission pour les notifications
+            requestNotificationPermission: function() {
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission().then(function(permission) {
+                        console.log('Notification permission:', permission);
+                    });
+                }
+            },
+
+            // Partager du contenu
+            shareContent: function(title, text, url) {
+                if (navigator.share) {
+                    navigator.share({
+                        title: title,
+                        text: text,
+                        url: url
+                    }).catch(function(error) {
+                        console.log('Error sharing:', error);
+                    });
+                } else {
+                    // Fallback pour les navigateurs qui ne supportent pas l'API Web Share
+                    const dummy = document.createElement('input');
+                    document.body.appendChild(dummy);
+                    dummy.value = url;
+                    dummy.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(dummy);
+                    
+                    alert('Lien copié dans le presse-papiers !');
+                }
+            }
+        };
+
+        // Demander la permission pour les notifications au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            window.DonMUtils.requestNotificationPermission();
+        });
+
+        // Gestion du thème (clair/sombre)
+        function initTheme() {
+            const savedTheme = localStorage.getItem('donm-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('donm-theme', newTheme);
+            
+            // Tracker le changement de thème
+            trackEvent('theme_change', {
+                theme: newTheme
+            });
+        }
+
+        // Initialiser le thème
+        initTheme();
+
+        // Gestion du scroll pour la performance
+        let scrollTimeout;
+        function handleScroll() {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(function() {
+                // Optimiser les animations pendant le scroll
+                document.body.classList.add('scrolling');
+                
+                setTimeout(function() {
+                    document.body.classList.remove('scrolling');
+                }, 150);
+            }, 100);
+        }
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        // Gestion du redimensionnement pour la responsivité
+        let resizeTimeout;
+        function handleResize() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                // Mettre à jour les variables CSS pour la responsivité
+                const width = window.innerWidth;
+                document.documentElement.style.setProperty('--viewport-width', width + 'px');
+                
+                // Tracker les dimensions d'écran pour les analytics
+                trackEvent('viewport_resize', {
+                    width: width,
+                    height: window.innerHeight
+                });
+            }, 250);
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Appel initial
+
+        // Gestion du swipe pour mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // Swipe gauche
+                    document.body.classList.add('swipe-left');
+                } else {
+                    // Swipe droite
+                    document.body.classList.add('swipe-right');
+                }
+
+                setTimeout(function() {
+                    document.body.classList.remove('swipe-left', 'swipe-right');
+                }, 300);
+            }
+        }
+
+        // Optimisation des images (lazy loading)
+        function initLazyLoading() {
+            const images = document.querySelectorAll('img[data-src]');
+            
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver(function(entries, observer) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src;
+                            img.classList.remove('lazy');
+                            imageObserver.unobserve(img);
+                        }
+                    });
+                });
+
+                images.forEach(function(img) {
+                    imageObserver.observe(img);
+                });
+            } else {
+                // Fallback pour les navigateurs plus anciens
+                images.forEach(function(img) {
+                    img.src = img.dataset.src;
+                });
+            }
+        }
+
+        // Initialiser le lazy loading
+        document.addEventListener('DOMContentLoaded', initLazyLoading);
+
+        // Gestion des erreurs réseau
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            
+            // Tracker les erreurs réseau
+            trackEvent('network_error', {
+                error: event.reason.message || 'Unknown error'
+            });
+        });
+
+        // Préchargement des ressources critiques
+        function preloadCriticalResources() {
+            const criticalResources = [
+                '/assets/fonts/Poppins-Regular.woff2',
+                '/assets/fonts/Poppins-Medium.woff2',
+                '/assets/fonts/Poppins-SemiBold.woff2',
+                '/assets/images/donm-logo.png',
+                '/assets/images/default-avatar.png'
+            ];
+
+            criticalResources.forEach(function(resource) {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.href = resource;
+                link.as = resource.includes('.woff2') ? 'font' : 'image';
+                document.head.appendChild(link);
+            });
+        }
+
+        // Précharger les ressources critiques
+        preloadCriticalResources();
+
+        console.log('DonM Web Application initialized successfully');
+    </script>
+</body>
+</html>
